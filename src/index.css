@@ -1,0 +1,172 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap');
+
+/* ─── DESIGN TOKENS ──────────────────────────────────────────────────────── */
+:root {
+  /* Dark mode defaults */
+  --bg:           #050505;
+  --surface:      #0f0f0f;
+  --surface2:     #181818;
+  --border:       rgba(255,255,255,0.07);
+  --accent:       #00ff9d;
+  --accent-blue:  #3b82f6;
+  --text:         #ffffff;
+  --text-muted:   rgba(255,255,255,0.45);
+  --glow-accent:  rgba(0,255,157,0.12);
+  --glow-blue:    rgba(59,130,246,0.12);
+
+  --font-display: 'Syne', sans-serif;
+  --font-body:    'DM Sans', sans-serif;
+
+  color-scheme: dark;
+}
+
+/* ─── LIGHT MODE ─────────────────────────────────────────────────────────── */
+.light {
+  --bg:           #f2f2ee;
+  --surface:      #ffffff;
+  --surface2:     #f8f8f5;
+  --border:       rgba(0,0,0,0.07);
+  --accent:       #00b870;
+  --accent-blue:  #2563eb;
+  --text:         #0a0a0a;
+  --text-muted:   rgba(0,0,0,0.45);
+  --glow-accent:  rgba(0,184,112,0.08);
+  --glow-blue:    rgba(37,99,235,0.08);
+
+  color-scheme: light;
+}
+
+/* ─── TAILWIND THEME MAPPING ─────────────────────────────────────────────── */
+@theme {
+  --color-background:  var(--bg);
+  --color-surface:     var(--surface);
+  --color-accent:      var(--accent);
+  --color-accent-blue: var(--accent-blue);
+  --color-secondary:   var(--text-muted);
+}
+
+/* ─── BASE ───────────────────────────────────────────────────────────────── */
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-feature-settings: "cv11","ss01";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+h1,h2,h3,h4,h5,h6 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+::selection {
+  background: var(--accent);
+  color: #000;
+}
+
+/* ─── SCROLLBAR ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 5px; }
+::-webkit-scrollbar-track  { background: var(--bg); }
+::-webkit-scrollbar-thumb  {
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+}
+.light ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); }
+::-webkit-scrollbar-thumb:hover  { background: var(--accent); }
+
+/* ─── FOCUS ──────────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ─── LIGHT MODE CARD FIXES ──────────────────────────────────────────────── */
+.light .glass-card {
+  background: rgba(255,255,255,0.75) !important;
+  border-color: rgba(0,0,0,0.07) !important;
+}
+.light .input-field {
+  background: rgba(0,0,0,0.04) !important;
+  border-color: rgba(0,0,0,0.1) !important;
+  color: #0a0a0a !important;
+}
+.light .input-field::placeholder { color: rgba(0,0,0,0.25) !important; }
+.light .canvas-bg { opacity: 0.15 !important; }
+
+/* ─── TOAST NOTIFICATION ─────────────────────────────────────────────────── */
+@keyframes slideUp {
+  from { opacity:0; transform: translateY(10px) scale(0.96); }
+  to   { opacity:1; transform: translateY(0) scale(1); }
+}
+@keyframes slideDown {
+  from { opacity:1; transform: translateY(0) scale(1); }
+  to   { opacity:0; transform: translateY(10px) scale(0.96); }
+}
+.toast-in  { animation: slideUp   0.28s cubic-bezier(0.16,1,0.3,1) forwards; }
+.toast-out { animation: slideDown 0.22s ease forwards; }
+
+/* ─── GRADIENT TEXT ──────────────────────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-blue) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── VIDEO OVERLAY ──────────────────────────────────────────────────────── */
+.video-overlay {
+  background: linear-gradient(to top,
+    var(--bg) 0%,
+    rgba(5,5,5,0.55) 50%,
+    rgba(5,5,5,0.2) 100%
+  );
+}
+.light .video-overlay {
+  background: linear-gradient(to top,
+    var(--bg) 0%,
+    rgba(242,242,238,0.55) 50%,
+    rgba(242,242,238,0.2) 100%
+  );
+}
+
+/* ─── BENCH BAR ──────────────────────────────────────────────────────────── */
+.bench-bar {
+  background: rgba(255,255,255,0.06);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.light .bench-bar { background: rgba(0,0,0,0.06); }
+
+/* ─── STEP LINE ──────────────────────────────────────────────────────────── */
+.step-line {
+  border-left: 1px solid rgba(255,255,255,0.08);
+}
+.light .step-line { border-left-color: rgba(0,0,0,0.08); }
+
+/* ─── THEME TOGGLE ───────────────────────────────────────────────────────── */
+.theme-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.theme-pill:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
