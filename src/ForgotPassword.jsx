@@ -59,6 +59,7 @@ const ForgotPassword = () => {
   const [isSent, setIsSent] = useState(false);
   const [email, setEmail] = useState('');
   const { showToast } = useToast();
+  const { theme } = useTheme(); // <-- ADDED THEME HERE
 
   const inputBase = {
     width: '100%',
@@ -181,10 +182,17 @@ const ForgotPassword = () => {
           </AnimatePresence>
         </div>
 
-        <div className="text-center mt-6">
-          <img src="https://cdn.prod.website-files.com/685df7190351aa65bc34fcae/685ea8d37aa433f7055dce72_Convexia%20Logo.svg"
-            alt="Convexia" className="h-5 mx-auto" style={{ opacity: 0.35 }} />
-        </div>
+        {/* Logo */}
+                <div className="flex justify-center mb-8 relative z-10">
+                  <Link to="/" className="flex items-center group">
+                    <img 
+                      src="/nanologo.png" 
+                      alt="NanoToxi AI" 
+                      className="h-10 md:h-12 transition-transform duration-300 group-hover:scale-105 rounded"
+                      style={{ mixBlendMode: theme === 'dark' ? 'screen' : 'normal' }} 
+                    />
+                  </Link>
+                </div>
       </motion.div>
     </div>
   );
