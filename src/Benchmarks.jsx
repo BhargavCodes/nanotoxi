@@ -16,13 +16,13 @@ const fadeUp = {
 };
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
 
-// ─── BENCHMARK DATA ───────────────────────────────────────────────────────────
+// ─── BENCHMARK DATA — updated to use blue accent ──────────────────────────────
 const BENCHMARK_CATEGORIES = [
   {
     id: 'toxicity',
     label: 'Toxicity Classification',
     icon: Shield,
-    color: '#00ff9d',
+    color: '#00c6ff',
     description: 'Binary TOXIC / NON-TOXIC prediction on diverse nanoparticle test sets.',
     metrics: [
       { name: 'Nanotoxi (Ours)', accuracy: 95.2, f1: 94.8, auc: 97.1, highlight: true },
@@ -37,7 +37,7 @@ const BENCHMARK_CATEGORIES = [
     id: 'aggregation',
     label: 'Aggregation Prediction',
     icon: Activity,
-    color: '#3b82f6',
+    color: '#2563eb',
     description: 'Hydrodynamic diameter and colloidal stability prediction (R² score).',
     metrics: [
       { name: 'Nanotoxi (Ours)', accuracy: 91.8, f1: 91.2, auc: 94.6, highlight: true },
@@ -103,7 +103,7 @@ const AnimatedBar = ({ value, max = 100, color, highlight, delay = 0 }) => (
   <div className="bench-bar h-2 flex-1">
     <motion.div
       className="h-full rounded-full"
-      style={{ background: highlight ? color : 'rgba(255,255,255,0.18)' }}
+      style={{ background: highlight ? color : 'var(--border)' }}
       initial={{ width: 0 }}
       whileInView={{ width: `${(value / max) * 100}%` }}
       viewport={{ once: true }}
@@ -117,16 +117,17 @@ const MetricRow = ({ metric, color, delay }) => (
   <motion.div
     variants={fadeUp}
     className="grid items-center gap-4 py-3.5 border-b"
-    style={{
-      gridTemplateColumns: '1fr 80px 1fr 56px',
-      borderColor: 'var(--border)',
-    }}
+    style={{ gridTemplateColumns: '1fr 80px 1fr 56px', borderColor: 'var(--border)' }}
   >
     <div className="flex items-center gap-3">
-      {metric.highlight && (
-        <span className="w-2 h-2 rounded-full flex-shrink-0 animate-pulse" style={{ background: color }} />
-      )}
-      {!metric.highlight && <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: 'rgba(255,255,255,0.15)' }} />}
+      <span
+        className="w-2 h-2 rounded-full flex-shrink-0"
+        style={{
+          background: metric.highlight ? color : 'var(--text-muted)',
+          opacity: metric.highlight ? 1 : 0.4,
+          boxShadow: metric.highlight ? `0 0 6px ${color}` : 'none',
+        }}
+      />
       <span className="text-sm font-medium" style={{ color: metric.highlight ? 'var(--text)' : 'var(--text-muted)', fontWeight: metric.highlight ? 700 : 400 }}>
         {metric.name}
       </span>
@@ -219,7 +220,7 @@ const BenchmarkCard = ({ cat, index }) => {
   );
 };
 
-// ─── RADAR CHART (pure SVG) ───────────────────────────────────────────────────
+// ─── RADAR CHART — updated to blue accent ─────────────────────────────────────
 const RadarChart = () => {
   const axes = [
     { label: 'Toxicity', value: 95.2, baseline: 83.7 },
@@ -248,23 +249,27 @@ const RadarChart = () => {
   return (
     <svg width="300" height="300" viewBox="0 0 300 300" className="mx-auto">
       {rings.map((r, ri) => (
-        <polygon key={ri} points={makePolygon(Array(N).fill(r * 100))} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
+        <polygon key={ri} points={makePolygon(Array(N).fill(r * 100))}
+          fill="none" stroke="rgba(0,198,255,0.07)" strokeWidth="1" />
       ))}
       {axes.map((_, i) => {
         const pt = toXY((2 * Math.PI * i) / N, R);
-        return <line key={i} x1={CX} y1={CY} x2={pt.x} y2={pt.y} stroke="rgba(255,255,255,0.07)" strokeWidth="1" />;
+        return <line key={i} x1={CX} y1={CY} x2={pt.x} y2={pt.y} stroke="rgba(0,198,255,0.08)" strokeWidth="1" />;
       })}
-      <polygon points={makePolygon(axes.map(a => a.baseline))} fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeDasharray="4 3" />
-      <polygon points={makePolygon(axes.map(a => a.value))} fill="rgba(0,255,157,0.12)" stroke="rgba(0,255,157,0.8)" strokeWidth="2" />
+      <polygon points={makePolygon(axes.map(a => a.baseline))}
+        fill="rgba(37,99,235,0.06)" stroke="rgba(37,99,235,0.35)" strokeWidth="1.5" strokeDasharray="4 3" />
+      <polygon points={makePolygon(axes.map(a => a.value))}
+        fill="rgba(0,198,255,0.12)" stroke="rgba(0,198,255,0.85)" strokeWidth="2" />
       {axes.map((a, i) => {
         const pt = toXY((2 * Math.PI * i) / N, (a.value / 100) * R);
-        return <circle key={i} cx={pt.x} cy={pt.y} r="4" fill="#00ff9d" />;
+        return <circle key={i} cx={pt.x} cy={pt.y} r="4" fill="#00c6ff" />;
       })}
       {axes.map((a, i) => {
         const angle = (2 * Math.PI * i) / N;
         const pt = toXY(angle, R + 22);
         return (
-          <text key={i} x={pt.x} y={pt.y} textAnchor="middle" dominantBaseline="middle" fontSize="11" fontFamily="var(--font-display)" fill="rgba(255,255,255,0.55)">
+          <text key={i} x={pt.x} y={pt.y} textAnchor="middle" dominantBaseline="middle"
+            fontSize="11" fontFamily="var(--font-display)" fill="rgba(200,220,255,0.55)">
             {a.label}
           </text>
         );
@@ -285,20 +290,18 @@ const BenchmarksPage = () => {
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg)', color: 'var(--text)' }}>
 
-      {/* Top nav bar */}
+      {/* Top nav bar — theme-aware */}
       <header className="border-b sticky top-0 z-40 backdrop-blur-xl"
-        style={{ borderColor: 'var(--border)', background: 'rgba(5,5,5,0.9)' }}>
+        style={{ borderColor: 'var(--border)', background: 'var(--surface-nav)' }}>
         <div className="container mx-auto px-6 h-16 flex items-center justify-between">
-          
           <Link to="/" className="flex items-center group">
-            <img 
-              src="/nanologo.png" 
-              alt="NanoToxi AI" 
-              className="h-8 md:h-10 rounded transition-transform duration-300 group-hover:scale-105" 
+            <img
+              src="/nanologo.png"
+              alt="NanoToxi AI"
+              className="h-8 md:h-10 rounded transition-transform duration-300 group-hover:scale-105"
               style={{ mixBlendMode: theme === 'dark' ? 'screen' : 'normal' }}
             />
           </Link>
-
           <div className="flex items-center gap-4">
             <Link to="/" className="inline-flex items-center gap-2 text-sm hover:opacity-80 transition-opacity"
               style={{ color: 'var(--text-muted)' }}>
@@ -316,20 +319,16 @@ const BenchmarksPage = () => {
 
       {/* Hero */}
       <section className="relative py-24 border-b overflow-hidden" style={{ borderColor: 'var(--border)' }}>
-        <div className="absolute inset-0 pointer-events-none" style={{
-          backgroundImage: `linear-gradient(rgba(0,255,157,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,157,0.04) 1px, transparent 1px)`,
-          backgroundSize: '60px 60px',
-          maskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%)',
-          WebkitMaskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%)',
-        }} />
+        {/* Blue grid overlay */}
+        <div className="absolute inset-0 pointer-events-none grid-overlay" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse, rgba(0,255,157,0.1) 0%, transparent 70%)', filter: 'blur(30px)' }} />
+          style={{ background: 'radial-gradient(ellipse, rgba(0,198,255,0.1) 0%, transparent 70%)', filter: 'blur(30px)' }} />
 
         <div className="container mx-auto px-6 text-center relative z-10">
           <motion.div variants={stagger} initial="hidden" animate="visible">
             <motion.div variants={fadeUp} className="flex justify-center mb-6">
               <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-xs font-semibold tracking-wider uppercase"
-                style={{ borderColor: 'rgba(0,255,157,0.35)', color: 'var(--accent)', background: 'rgba(0,255,157,0.07)' }}>
+                style={{ borderColor: 'rgba(0,198,255,0.35)', color: 'var(--accent)', background: 'rgba(0,198,255,0.07)' }}>
                 <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: 'var(--accent)' }} />
                 NanotoxiBench v1.0
               </span>
@@ -347,7 +346,11 @@ const BenchmarksPage = () => {
               {SUMMARY_STATS.map((stat, i) => (
                 <motion.div key={i} variants={fadeUp}
                   className="rounded-2xl border p-5 text-center"
-                  style={{ background: 'rgba(0,255,157,0.04)', borderColor: 'rgba(0,255,157,0.15)', backdropFilter: 'blur(10px)' }}>
+                  style={{
+                    background: 'rgba(0,198,255,0.04)',
+                    borderColor: 'rgba(0,198,255,0.15)',
+                    backdropFilter: 'blur(10px)',
+                  }}>
                   <div className="text-3xl font-black mb-1" style={{ color: 'var(--accent)', fontFamily: 'var(--font-display)' }}>
                     {stat.value}
                   </div>
@@ -380,13 +383,12 @@ const BenchmarksPage = () => {
               ))}
             </div>
 
-            {/* ---> FIX: Wrapped in AnimatePresence with mode="wait" and added key={activeTab} <--- */}
             <AnimatePresence mode="wait">
-              <motion.div 
-                key={activeTab} 
-                variants={stagger} 
-                initial="hidden" 
-                animate="visible" 
+              <motion.div
+                key={activeTab}
+                variants={stagger}
+                initial="hidden"
+                animate="visible"
                 exit={{ opacity: 0, y: 10, transition: { duration: 0.2 } }}
                 className="space-y-5"
               >
@@ -405,7 +407,10 @@ const BenchmarksPage = () => {
               <p className="text-xs mb-5" style={{ color: 'var(--text-muted)' }}>Nanotoxi vs. best baseline across all dimensions</p>
               <RadarChart />
               <div className="flex items-center justify-center gap-6 mt-4">
-                {[{ color: '#00ff9d', label: 'Nanotoxi' }, { color: 'rgba(255,255,255,0.3)', label: 'Best Baseline', dash: true }].map(l => (
+                {[
+                  { color: '#00c6ff', label: 'Nanotoxi' },
+                  { color: 'rgba(37,99,235,0.5)', label: 'Best Baseline', dash: true },
+                ].map(l => (
                   <div key={l.label} className="flex items-center gap-2">
                     <div className="w-6 h-px" style={{ background: l.color, borderTop: l.dash ? '1.5px dashed' : 'none' }} />
                     <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{l.label}</span>
@@ -427,11 +432,12 @@ const BenchmarksPage = () => {
               </div>
             </motion.div>
 
+            {/* API CTA card — blue themed */}
             <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
               className="rounded-2xl border p-6 relative overflow-hidden"
-              style={{ background: 'rgba(0,255,157,0.04)', borderColor: 'rgba(0,255,157,0.18)' }}>
+              style={{ background: 'rgba(0,198,255,0.04)', borderColor: 'rgba(0,198,255,0.18)' }}>
               <div className="absolute top-0 left-0 right-0 h-px"
-                style={{ background: 'linear-gradient(90deg, transparent, rgba(0,255,157,0.5), transparent)' }} />
+                style={{ background: 'linear-gradient(90deg, transparent, rgba(0,198,255,0.5), transparent)' }} />
               <h3 className="font-bold mb-2" style={{ color: 'var(--text)', fontFamily: 'var(--font-display)' }}>
                 Run Your Own Predictions
               </h3>
@@ -473,16 +479,14 @@ const BenchmarksPage = () => {
       {/* Footer */}
       <footer className="border-t py-8" style={{ borderColor: 'var(--border)' }}>
         <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          
           <Link to="/" className="flex items-center">
-            <img 
-              src="/nanologo.png" 
-              alt="NanoToxi AI" 
-              className="h-6 md:h-8 rounded transition-transform duration-300 hover:scale-105" 
+            <img
+              src="/nanologo.png"
+              alt="NanoToxi AI"
+              className="h-6 md:h-8 rounded transition-transform duration-300 hover:scale-105"
               style={{ mixBlendMode: theme === 'dark' ? 'screen' : 'normal' }}
             />
           </Link>
-
           <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
             NanotoxiBench v1.0 · © 2025 Nanotoxi. All rights reserved.
           </p>
