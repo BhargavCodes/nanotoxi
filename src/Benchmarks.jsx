@@ -124,19 +124,23 @@ const MetricRow = ({ metric, color, delay }) => (
         className="w-2 h-2 rounded-full flex-shrink-0"
         style={{
           background: metric.highlight ? color : 'var(--text-muted)',
-          opacity: metric.highlight ? 1 : 0.4,
+          opacity: metric.highlight ? 1 : 0.6,
           boxShadow: metric.highlight ? `0 0 6px ${color}` : 'none',
         }}
       />
-      <span className="text-sm font-medium" style={{ color: metric.highlight ? 'var(--text)' : 'var(--text-muted)', fontWeight: metric.highlight ? 700 : 400 }}>
+      <span className="text-sm" style={{ 
+        color: metric.highlight ? 'var(--text)' : 'rgba(200,220,255,0.7)', 
+        fontWeight: metric.highlight ? 700 : 500,
+        fontSize: metric.highlight ? '0.875rem' : '0.82rem',
+      }}>
         {metric.name}
       </span>
     </div>
-    <span className="text-sm font-bold text-right" style={{ color: metric.highlight ? color : 'var(--text-muted)' }}>
+    <span className="text-sm font-bold text-right" style={{ color: metric.highlight ? color : 'rgba(200,220,255,0.65)' }}>
       {metric.accuracy}%
     </span>
     <AnimatedBar value={metric.accuracy} color={color} highlight={metric.highlight} delay={delay} />
-    <span className="text-xs text-right" style={{ color: 'var(--text-muted)' }}>
+    <span className="text-xs text-right" style={{ color: metric.highlight ? 'rgba(200,220,255,0.7)' : 'rgba(200,220,255,0.45)' }}>
       AUC {metric.auc}
     </span>
   </motion.div>

@@ -65,7 +65,7 @@ export function useCanvas(drawFn, scrollProgress) {
       ro.disconnect(); 
       io.disconnect(); 
     };
-  }, [drawFn]); // Added drawFn dependency
+  }, [drawFn]); 
   
   return ref;
 }
@@ -143,139 +143,88 @@ export function AggregationCanvas({ scrollProgress } = {}) {
   return <canvas ref={ref} style={{ width:'100%', height:'100%', display:'block' }} />;
 }
 
-// ─── 2. TOXICITY HEX GRID ────────────────────────────────────────────────────
-// Blue hex lattice with red toxic cells — scroll-scrubbable wave sweep
+// ─── 2. TOXICITY CLASSIFICATION ──────────────────────────────────────────────
+// Funnel/Scanning line showing binary sorting of nanoparticles
 export function ToxicityHexCanvas({ scrollProgress } = {}) {
-  const hexRef = useRef(null);
+  const stateRef = useRef({ particles: Array.from({length:40},()=>({x:Math.random(), y:Math.random(), speed:0.002+Math.random()*0.003, isToxic:Math.random()<0.3})) });
   const draw = useRef((ctx, W, H, t) => {
-    if (!hexRef.current || hexRef.current._W !== W) {
-      const S = 24, cols = Math.ceil(W/(S*1.73))+2, rows = Math.ceil(H/(S*1.5))+2;
-      hexRef.current = { _W: W, hexes: [] };
-      for (let r = 0; r < rows; r++)
-        for (let c = 0; c < cols; c++)
-          hexRef.current.hexes.push({
-            x: c*S*1.73+(r%2?S*0.87:0), y: r*S*1.5,
-            phase: Math.random()*Math.PI*2,
-            speed: 0.3+Math.random()*0.5,
-            toxic: Math.random() < 0.2, s: S,
-          });
-    }
-    ctx.clearRect(0, 0, W, H);
+    ctx.clearRect(0,0,W,H);
+    const scanY = H/2 + Math.sin(t)*H*0.1;
 
-    hexRef.current.hexes.forEach(h => {
-      const wave = (Math.sin(t*h.speed+h.phase)+1)/2;
-      const s = h.s-2;
-      const hex = () => {
-        ctx.beginPath();
-        for (let i = 0; i < 6; i++) {
-          const a = Math.PI/3*i-Math.PI/6;
-          i===0 ? ctx.moveTo(h.x+Math.cos(a)*s, h.y+Math.sin(a)*s)
-                : ctx.lineTo(h.x+Math.cos(a)*s, h.y+Math.sin(a)*s);
-        }
-        ctx.closePath();
-      };
-      hex();
-      if (h.toxic) {
-        ctx.fillStyle = `rgba(${C_DANGER},${wave*0.18})`; ctx.fill();
-        ctx.strokeStyle = `rgba(${C_DANGER},${wave*0.75})`; ctx.lineWidth=0.8; ctx.stroke();
-        if (wave > 0.8) {
-          ctx.beginPath();
-          for (let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/6;i===0?ctx.moveTo(h.x+Math.cos(a)*s*0.44,h.y+Math.sin(a)*s*0.44):ctx.lineTo(h.x+Math.cos(a)*s*0.44,h.y+Math.sin(a)*s*0.44);}
-          ctx.closePath();
-          ctx.fillStyle = `rgba(${C_DANGER},${(wave-0.8)*3})`; ctx.fill();
-        }
-      } else {
-        ctx.fillStyle = `rgba(${C_ACCENT},${wave*0.07})`; ctx.fill();
-        ctx.strokeStyle = `rgba(${C_ACCENT},${wave*0.28})`; ctx.lineWidth=0.6; ctx.stroke();
+    // Draw scanner
+    ctx.fillStyle = `rgba(${C_ACCENT}, 0.15)`; ctx.fillRect(0, scanY-20, W, 40);
+    ctx.fillStyle = `rgba(${C_ACCENT}, 0.8)`; ctx.fillRect(0, scanY-1, W, 2);
+
+    stateRef.current.particles.forEach(p => {
+      p.y += p.speed; 
+      if (p.y > 1) { p.y = -0.1; p.x = Math.random(); p.isToxic = Math.random()<0.3; }
+      
+      const py = p.y * H; 
+      const px = p.x * W;
+      const evaluated = py > scanY;
+      
+      // Before scan: grey. After scan: Blue (safe) or Red (toxic)
+      const col = evaluated ? (p.isToxic ? C_DANGER : C_ACCENT) : '150,160,180';
+      const alpha = evaluated ? 0.9 : 0.3;
+
+      ctx.beginPath(); ctx.arc(px,py, 6, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(${col}, ${alpha})`; ctx.fill();
+      
+      if(evaluated && p.isToxic) {
+         ctx.beginPath(); ctx.arc(px,py, 12 + Math.sin(t*10)*4, 0, Math.PI*2);
+         ctx.strokeStyle = `rgba(${col}, 0.5)`; ctx.stroke();
       }
     });
-
-    // Scroll sweep line
-    const sy = ((t*38)%(H+40))-20;
-    const sg = ctx.createLinearGradient(0,sy-24,0,sy+24);
-    sg.addColorStop(0,`rgba(${C_ACCENT},0)`);
-    sg.addColorStop(0.5,`rgba(${C_ACCENT},0.1)`);
-    sg.addColorStop(1,`rgba(${C_ACCENT},0)`);
-    ctx.fillStyle = sg; ctx.fillRect(0,sy-24,W,48);
   }).current;
-
+  
   const ref = useCanvas(draw, scrollProgress);
   return <canvas ref={ref} style={{ width:'100%', height:'100%', display:'block' }} />;
 }
 
 // ─── 3. CYTOTOXICITY MEMBRANE ─────────────────────────────────────────────────
-// Cell membrane with blue glow organelles and attacker particles
+// Precise lipid bilayer with red ROS particles attacking
 export function CytotoxicityCanvas({ scrollProgress } = {}) {
-  const stateRef = useRef(null);
   const draw = useRef((ctx, W, H, t) => {
-    if (!stateRef.current) {
-      stateRef.current = {
-        organelles: Array.from({length:6},(_,i)=>({
-          angle:(i/6)*Math.PI*2, rr:0.38+Math.random()*0.2,
-          size:6+Math.random()*6, speed:(Math.random()-0.5)*0.007,
-        })),
-        attackers: Array.from({length:14},()=>({
-          angle:Math.random()*Math.PI*2,
-          orbit:1.22+Math.random()*0.35,
-          speed:0.007+Math.random()*0.007,
-          breach:Math.random()<0.3, bp:Math.random(),
-        })),
-      };
-    }
-    const { organelles, attackers } = stateRef.current;
-    const cx = W/2, cy = H/2, R = Math.min(W,H)*0.29;
-
     ctx.clearRect(0,0,W,H);
+    const cx = W/2, cy = H*0.8;
+    const R = W*0.55;
 
-    // Outer glow ring
-    const gg = ctx.createRadialGradient(cx,cy,R*0.7,cx,cy,R*1.3);
-    gg.addColorStop(0,`rgba(${C_ACCENT},0.04)`);
-    gg.addColorStop(0.5,`rgba(${C_ACCENT},0.08)`);
-    gg.addColorStop(1,`rgba(${C_ACCENT},0)`);
-    ctx.beginPath(); ctx.arc(cx,cy,R*1.3,0,Math.PI*2);
-    ctx.fillStyle=gg; ctx.fill();
+    // Draw Bilayer
+    const drawLipid = (angle, radius, isOuter) => {
+       const x = cx + Math.cos(angle)*radius;
+       const y = cy + Math.sin(angle)*radius;
+       const tx = cx + Math.cos(angle)*(radius + (isOuter ? -15 : 15));
+       const ty = cy + Math.sin(angle)*(radius + (isOuter ? -15 : 15));
+       ctx.beginPath(); ctx.arc(x,y, 4, 0, Math.PI*2); ctx.fillStyle=`rgba(${C_ACCENT}, 0.8)`; ctx.fill();
+       ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(tx,ty); ctx.strokeStyle=`rgba(${C_ACCENT}, 0.4)`; ctx.lineWidth=2; ctx.stroke();
+    };
 
-    // Membrane
-    const memPulse = (Math.sin(t*0.8)+1)/2;
-    for(let i=0;i<3;i++){
-      ctx.beginPath(); ctx.arc(cx,cy,R+(i-1)*4,0,Math.PI*2);
-      ctx.strokeStyle=`rgba(${C_ACCENT},${0.18-i*0.06+memPulse*0.06})`;
-      ctx.lineWidth=1.5-i*0.4; ctx.stroke();
+    for(let a=Math.PI; a<Math.PI*2; a+=0.08) {
+       const wave = Math.sin(a*8 + t*2)*8;
+       drawLipid(a, R + wave + 20, true);
+       drawLipid(a, R + wave - 20, false);
     }
 
     // Nucleus
-    const ng = ctx.createRadialGradient(cx,cy,0,cx,cy,R*0.22);
-    ng.addColorStop(0,`rgba(${C_ACCENT},0.18)`);
-    ng.addColorStop(1,`rgba(${C_ACCENT},0)`);
-    ctx.beginPath(); ctx.arc(cx,cy,R*0.22,0,Math.PI*2);
-    ctx.fillStyle=ng; ctx.fill();
+    const ng = ctx.createRadialGradient(cx, cy, 0, cx, cy, R*0.4);
+    ng.addColorStop(0, `rgba(${C_BLUE}, 0.3)`); ng.addColorStop(1, `rgba(${C_BLUE}, 0)`);
+    ctx.beginPath(); ctx.arc(cx, cy, R*0.4, 0, Math.PI*2); ctx.fillStyle=ng; ctx.fill();
 
-    // Organelles
-    organelles.forEach(o => {
-      o.angle += o.speed;
-      const ox=cx+Math.cos(o.angle)*R*o.rr, oy=cy+Math.sin(o.angle)*R*o.rr;
-      const og=ctx.createRadialGradient(ox,oy,0,ox,oy,o.size*1.8);
-      og.addColorStop(0,`rgba(${C_BLUE},0.7)`);
-      og.addColorStop(1,`rgba(${C_BLUE},0)`);
-      ctx.beginPath(); ctx.arc(ox,oy,o.size*1.8,0,Math.PI*2);
-      ctx.fillStyle=og; ctx.fill();
-      ctx.beginPath(); ctx.arc(ox,oy,o.size,0,Math.PI*2);
-      ctx.fillStyle=`rgba(${C_BLUE},0.6)`; ctx.fill();
-    });
-
-    // Attackers
-    attackers.forEach(a => {
-      a.angle += a.speed;
-      const ax=cx+Math.cos(a.angle)*R*a.orbit, ay=cy+Math.sin(a.angle)*R*a.orbit;
-      const col = a.breach ? C_DANGER : C_ACCENT;
-      const ag=ctx.createRadialGradient(ax,ay,0,ax,ay,7);
-      ag.addColorStop(0,`rgba(${col},0.9)`);
-      ag.addColorStop(1,`rgba(${col},0)`);
-      ctx.beginPath(); ctx.arc(ax,ay,7,0,Math.PI*2);
-      ctx.fillStyle=ag; ctx.fill();
-      ctx.beginPath(); ctx.arc(ax,ay,3,0,Math.PI*2);
-      ctx.fillStyle=`rgba(${col},0.95)`; ctx.fill();
-    });
+    // ROS Attackers breaching
+    for(let i=0; i<6; i++) {
+       const angle = Math.PI*1.15 + i*0.18;
+       const dist = R + 100 - ((t*40 + i*40) % 180);
+       const rx = cx + Math.cos(angle)*dist;
+       const ry = cy + Math.sin(angle)*dist;
+       const isBreaching = dist < R+25;
+       
+       ctx.beginPath(); ctx.arc(rx,ry, 5, 0, Math.PI*2);
+       ctx.fillStyle = `rgba(${C_DANGER}, 0.9)`; ctx.fill();
+       if(isBreaching) {
+          ctx.beginPath(); ctx.arc(rx,ry, 15+Math.random()*15, 0, Math.PI*2);
+          ctx.fillStyle = `rgba(${C_DANGER}, 0.25)`; ctx.fill();
+       }
+    }
   }).current;
 
   const ref = useCanvas(draw, scrollProgress);
@@ -437,6 +386,153 @@ export function ReportMatrixCanvas({ scrollProgress } = {}) {
 
   const ref = useCanvas(draw, scrollProgress);
   return <canvas ref={ref} style={{ width:'100%', height:'100%', display:'block' }} />;
+}
+
+// ─── NEW: NANOPARTICLE INPUT CANVAS ──────────────────────────────────────────
+// Depicts parameter input: floating nanoparticles with labeled properties
+export function NanoInputCanvas({ scrollProgress } = {}) {
+  const stateRef = useRef(null);
+  const draw = useRef((ctx, W, H, t) => {
+    if (!stateRef.current || stateRef.current._W !== W) {
+      const particles = Array.from({ length: 7 }, (_, i) => ({
+        x: W * (0.1 + (i / 7) * 0.8),
+        baseY: H * 0.48,
+        r: 10 + (i % 3) * 8,
+        phase: (i / 7) * Math.PI * 2,
+        label: ['Size', 'ζ-pot', 'Surface', 'Dose', 'Shape', 'Coat', 'pH'][i],
+        value: ['12nm', '-18mV', '48m²/g', '50μg', 'Sphere', 'PEG', '7.4'][i],
+        color: [C_ACCENT, C_BLUE, C_ACCENT, C_ACCENT2, C_BLUE, C_ACCENT, C_ACCENT2][i],
+      }));
+      stateRef.current = { _W: W, particles };
+    }
+    const { particles } = stateRef.current;
+    ctx.clearRect(0, 0, W, H);
+
+    // Grid background
+    ctx.strokeStyle = `rgba(${C_ACCENT},0.04)`;
+    ctx.lineWidth = 0.5;
+    for (let x = 0; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+    for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+
+    // Connection lines between particles
+    for (let i = 0; i < particles.length - 1; i++) {
+      const p = particles[i], n = particles[i + 1];
+      const py = p.baseY + Math.sin(t * 0.8 + p.phase) * 16;
+      const ny = n.baseY + Math.sin(t * 0.8 + n.phase) * 16;
+      ctx.beginPath(); ctx.moveTo(p.x, py); ctx.lineTo(n.x, ny);
+      ctx.strokeStyle = `rgba(${C_ACCENT},0.1)`; ctx.lineWidth = 0.8; ctx.stroke();
+    }
+
+    particles.forEach((p) => {
+      const py = p.baseY + Math.sin(t * 0.8 + p.phase) * 16;
+      const pulse = (Math.sin(t * 1.5 + p.phase) + 1) / 2;
+
+      // Outer glow
+      const g = ctx.createRadialGradient(p.x, py, 0, p.x, py, p.r * 2.8);
+      g.addColorStop(0, `rgba(${p.color},${0.18 + pulse * 0.12})`);
+      g.addColorStop(1, `rgba(${p.color},0)`);
+      ctx.beginPath(); ctx.arc(p.x, py, p.r * 2.8, 0, Math.PI * 2);
+      ctx.fillStyle = g; ctx.fill();
+
+      // Core
+      ctx.beginPath(); ctx.arc(p.x, py, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${p.color},0.15)`; ctx.fill();
+      ctx.strokeStyle = `rgba(${p.color},${0.55 + pulse * 0.4})`; ctx.lineWidth = 1.5; ctx.stroke();
+
+      // Property label above
+      ctx.font = `bold 9px 'DM Sans',sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+      ctx.fillStyle = `rgba(${p.color},${0.65 + pulse * 0.25})`;
+      ctx.fillText(p.label, p.x, py - p.r - 5);
+
+      // Value below
+      ctx.font = `bold 10px 'DM Sans',sans-serif`;
+      ctx.textBaseline = 'top';
+      ctx.fillStyle = `rgba(200,220,255,${0.75 + pulse * 0.2})`;
+      ctx.fillText(p.value, p.x, py + p.r + 4);
+    });
+
+    // Flowing data arrow at bottom
+    const arrowX = ((t * 45) % (W + 60)) - 30;
+    const ag = ctx.createLinearGradient(arrowX, 0, arrowX + 22, 0);
+    ag.addColorStop(0, `rgba(${C_ACCENT},0)`); ag.addColorStop(0.5, `rgba(${C_ACCENT},0.55)`); ag.addColorStop(1, `rgba(${C_ACCENT},0)`);
+    ctx.beginPath(); ctx.moveTo(arrowX, H * 0.87); ctx.lineTo(arrowX + 22, H * 0.87);
+    ctx.strokeStyle = ag; ctx.lineWidth = 2; ctx.stroke();
+  }).current;
+
+  const ref = useCanvas(draw, scrollProgress);
+  return <canvas ref={ref} style={{ width: '100%', height: '100%', display: 'block' }} />;
+}
+
+// ─── NEW: EXPERT VALIDATION CANVAS ───────────────────────────────────────────
+// Human-in-the-loop: AI result → human expert review → validated result
+export function ExpertValidationCanvas({ scrollProgress } = {}) {
+  const draw = useRef((ctx, W, H, t) => {
+    ctx.clearRect(0, 0, W, H);
+    const cy = H / 2;
+    const boxW = Math.min(W * 0.2, 100), boxH = Math.min(H * 0.26, 80);
+
+    const boxes = [
+      { x: W * 0.17, label: 'AI Result', sublabel: '95.2%', color: C_ACCENT },
+      { x: W * 0.50, label: 'Expert Review', sublabel: 'Nanotox. Sci.', color: C_BLUE },
+      { x: W * 0.83, label: 'Validated', sublabel: 'Certified ✓', color: C_ACCENT },
+    ];
+
+    // Draw arrows & flowing particles between boxes
+    [[boxes[0], boxes[1]], [boxes[1], boxes[2]]].forEach(([from, to], arrowIdx) => {
+      const x1 = from.x + boxW / 2 + 6, x2 = to.x - boxW / 2 - 6;
+      ctx.beginPath(); ctx.moveTo(x1, cy); ctx.lineTo(x2 - 8, cy);
+      ctx.strokeStyle = `rgba(${C_ACCENT},0.18)`; ctx.lineWidth = 1.2; ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x2 - 8, cy - 5); ctx.lineTo(x2, cy); ctx.lineTo(x2 - 8, cy + 5);
+      ctx.strokeStyle = `rgba(${C_ACCENT},0.28)`; ctx.lineWidth = 1.2; ctx.stroke();
+
+      const localT = ((t * 0.5 + arrowIdx * 0.5) % 1);
+      const px = x1 + (x2 - x1) * localT;
+      const g = ctx.createRadialGradient(px, cy, 0, px, cy, 7);
+      g.addColorStop(0, `rgba(${C_ACCENT},0.9)`); g.addColorStop(1, `rgba(${C_ACCENT},0)`);
+      ctx.beginPath(); ctx.arc(px, cy, 7, 0, Math.PI * 2); ctx.fillStyle = g; ctx.fill();
+      ctx.beginPath(); ctx.arc(px, cy, 2.5, 0, Math.PI * 2); ctx.fillStyle = `rgba(${C_ACCENT},1)`; ctx.fill();
+    });
+
+    // Expert person icon at centre box top
+    const ebox = boxes[1], expY = cy - boxH / 2 - 28;
+    const personPulse = (Math.sin(t * 1.1) + 1) / 2;
+    ctx.beginPath(); ctx.arc(ebox.x, expY - 7, 9, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(${C_BLUE},${0.5 + personPulse * 0.4})`; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ebox.x - 11, expY + 12);
+    ctx.quadraticCurveTo(ebox.x, expY + 3, ebox.x + 11, expY + 12);
+    ctx.strokeStyle = `rgba(${C_BLUE},${0.4 + personPulse * 0.3})`; ctx.lineWidth = 1.5; ctx.stroke();
+
+    // Boxes
+    boxes.forEach((box, i) => {
+      const bx = box.x - boxW / 2, by = cy - boxH / 2;
+      const pulse = (Math.sin(t * 1.2 + i * 1.4) + 1) / 2;
+
+      const g = ctx.createRadialGradient(box.x, cy, 0, box.x, cy, boxW);
+      g.addColorStop(0, `rgba(${box.color},${0.06 + pulse * 0.04})`);
+      g.addColorStop(1, `rgba(${box.color},0)`);
+      ctx.beginPath(); ctx.arc(box.x, cy, boxW, 0, Math.PI * 2);
+      ctx.fillStyle = g; ctx.fill();
+
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(bx, by, boxW, boxH, 8);
+      else { ctx.rect(bx, by, boxW, boxH); }
+      ctx.fillStyle = `rgba(${box.color},0.07)`; ctx.fill();
+      ctx.strokeStyle = `rgba(${box.color},${0.3 + pulse * 0.2})`; ctx.lineWidth = 1; ctx.stroke();
+
+      ctx.font = `bold 10px 'DM Sans',sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = `rgba(200,220,255,0.9)`;
+      ctx.fillText(box.label, box.x, by + boxH * 0.38);
+      ctx.font = `9px 'DM Sans',sans-serif`;
+      ctx.fillStyle = `rgba(${box.color},${0.6 + pulse * 0.3})`;
+      ctx.fillText(box.sublabel, box.x, by + boxH * 0.68);
+    });
+  }).current;
+
+  const ref = useCanvas(draw, scrollProgress);
+  return <canvas ref={ref} style={{ width: '100%', height: '100%', display: 'block' }} />;
 }
 
 // ─── 7. NEURAL VALIDATION MESH ───────────────────────────────────────────────

@@ -30,6 +30,8 @@ import {
   DataHelixCanvas,
   ReportMatrixCanvas,
   ValidationMeshCanvas,
+  NanoInputCanvas,
+  ExpertValidationCanvas,
 } from './ScrollAnimations';
 
 // ─── PREMIUM EASINGS ──────────────────────────────────────────────────────────
@@ -273,7 +275,7 @@ const STEPS = [
     id:'01', num:'Step 1', title:'Nanoparticle Input', sub:'Define your parameters.',
     desc:'Provide size, zeta potential, surface area, dosage, and exposure conditions for accurate modeling.',
     icon: FlaskConical, cta: { label:'Try Live Demo', href:'#demo' },
-    anim: DataHelixCanvas,
+    anim: NanoInputCanvas,
   },
   {
     id:'02', num:'Step 2', title:'Aggregation Analysis', sub:'Model environmental behavior.',
@@ -303,7 +305,7 @@ const STEPS = [
   {
     id:'07', num:'Step 7', title:'Expert Validation', sub:'Human-in-the-loop verification.',
     desc:'Domain experts in nanotoxicology review and validate AI safety assessments.',
-    icon: CheckCircle2, anim: ValidationMeshCanvas,
+    icon: CheckCircle2, anim: ExpertValidationCanvas,
   },
 ];
 
@@ -712,7 +714,7 @@ const StepItem = ({ step, visibleId, onVisible }) => {
         {step.title}
       </h3>
       <h4 className="text-base md:text-lg mb-4 font-medium" style={{ color: 'var(--text-muted)' }}>{step.sub}</h4>
-      <p className="leading-relaxed mb-6 max-w-md" style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>{step.desc}</p>
+      <p className="leading-relaxed mb-6 max-w-md" style={{ color: 'rgba(200,220,255,0.72)', fontSize: '1.05rem', lineHeight: 1.75 }}>{step.desc}</p>
 
       {/* Mobile: canvas inline */}
       {step.anim && (
@@ -1077,8 +1079,8 @@ const WhyAI = () => (
                 style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(0,198,255,0.55) 50%, transparent 95%)' }} />
 
               {/* Content — anchored bottom-left */}
-              <div className="relative z-10 p-10 md:p-14 h-full flex flex-col justify-end">
-                <motion.div className="mb-8 self-start"
+              <div className="relative z-10 p-10 md:p-14 h-full flex flex-col justify-end" style={{ minHeight: 480 }}>
+                <motion.div className="mb-6 self-start"
                   animate={{ y: [0, -6, 0] }} transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}>
                   <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold tracking-widest uppercase"
                     style={{ background: 'rgba(0,198,255,0.12)', boxShadow: '0 0 0 1px rgba(0,198,255,0.28) inset', color: 'var(--accent)' }}>
@@ -1087,16 +1089,16 @@ const WhyAI = () => (
                   </span>
                 </motion.div>
 
-                <p className="font-bold mb-8"
-                  style={{ fontSize: 'clamp(1.6rem, 3.5vw, 3rem)', color: 'var(--text)', fontFamily: 'var(--font-display)', letterSpacing: '-0.025em', lineHeight: 1.15, maxWidth: 560 }}>
+                <p className="font-bold mb-10"
+                  style={{ fontSize: 'clamp(1.5rem, 3vw, 2.6rem)', color: 'var(--text)', fontFamily: 'var(--font-display)', letterSpacing: '-0.025em', lineHeight: 1.2, maxWidth: 580 }}>
                   {card.desc}
                 </p>
 
                 <div className="flex gap-10 flex-wrap">
-                  {[['95.2%', 'Accuracy'], ['<0.15s', 'Latency'], ['14,791+', 'Samples']].map(([val, lbl]) => (
+                  {[['14,791+', 'Curated Samples']].map(([val, lbl]) => (
                     <div key={lbl}>
-                      <p className="text-2xl font-black" style={{ color: 'var(--accent)', fontFamily: 'var(--font-display)' }}>{val}</p>
-                      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{lbl}</p>
+                      <p className="font-black" style={{ fontSize: 'clamp(2.4rem, 4vw, 3.5rem)', color: 'var(--accent)', fontFamily: 'var(--font-display)', lineHeight: 1, textShadow: '0 0 40px rgba(0,198,255,0.5)' }}>{val}</p>
+                      <p className="text-sm mt-1 font-medium" style={{ color: 'rgba(200,220,255,0.65)' }}>{lbl}</p>
                     </div>
                   ))}
                 </div>
@@ -1589,7 +1591,6 @@ const LandingPage = () => (
     <Hero />
     <StatsTicker />
     <StepsSection />
-    <Benchmarks />
     <EvalStack />
     <WhyAI />
     <FAQ />

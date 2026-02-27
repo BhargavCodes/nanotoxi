@@ -13,7 +13,7 @@
   --accent-blue:  #2563eb;
   --accent-deep:  #0066cc;
   --text:         #e8f0ff;
-  --text-muted:   rgba(200,220,255,0.42);
+  --text-muted:   rgba(200,220,255,0.58);
   --glow-accent:  rgba(0,198,255,0.13);
   --glow-blue:    rgba(37,99,235,0.13);
 
@@ -34,7 +34,7 @@
   --accent-blue:  #1d4ed8;
   --accent-deep:  #0060a0;
   --text:         #060d1c;
-  --text-muted:   rgba(6,13,28,0.48);
+  --text-muted:   rgba(6,13,28,0.60);
   --glow-accent:  rgba(0,128,179,0.09);
   --glow-blue:    rgba(29,78,216,0.09);
 
