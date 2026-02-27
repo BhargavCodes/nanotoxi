@@ -1,14 +1,71 @@
-# Nanotoxi — Frontend
+# 🧬 NanoToxi AI — Nanoparticle Toxicity Prediction Platform
 
-> AI-powered nanoparticle toxicity prediction platform. Predict toxicity, aggregation, and cytotoxicity in under 0.15 seconds.
+> **AI-powered nanoparticle safety assessment** — delivering instant toxicity predictions, aggregation risk scores, and cytotoxicity analysis to accelerate safer nanomaterial research.
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Pages & Routes](#pages--routes)
+- [Design System](#design-system)
+- [UI Components & Animations](#ui-components--animations)
+- [Authentication](#authentication)
+- [AI Demo Widget](#ai-demo-widget)
+- [Benchmarks Page](#benchmarks-page)
+- [Environment & API](#environment--api)
+- [Contributing](#contributing)
+- [License](#license)
 
 ---
 
 ## Overview
 
-Nanotoxi is a web application frontend for an AI-driven nanoparticle safety assessment platform. It provides a marketing landing page, authentication flows, and a full benchmark results page (NanotoxiBench) showcasing ML model performance.
+NanoToxi AI is a full-featured **React web application** that serves as the frontend for an ML-powered nanoparticle toxicity prediction API. The platform allows researchers, scientists, and organizations to:
 
-**Tech Stack:** React 18 · React Router v6 · Framer Motion · Tailwind CSS v4 · Lucide React
+- Submit nanoparticle properties (size, charge, material, coating, etc.) and receive instant **toxicity predictions**
+- View **aggregation risk** and **cytotoxicity scores**
+- Explore **benchmark comparisons** (NanotoxiBench) against baseline models
+- Access the platform via a beautifully designed, cinematic landing page
+
+The project is production-ready in terms of UI/UX, with full dark/light theme support, smooth scroll animations, scroll-driven canvas visualizations, and a polished authentication flow.
+
+---
+
+## Features
+
+- 🔬 **AI Toxicity Prediction** — Submit nanoparticle parameters and get real-time predictions with confidence scores, risk factors, and cytotoxicity scores; falls back to heuristic simulation when the API is offline
+- 📊 **NanotoxiBench** — Benchmark page comparing model performance across datasets with animated bar charts and accuracy metrics
+- 🎨 **Cinematic Landing Page** — Hero section with scroll-driven animations, stats ticker, 3-step how-it-works flow, bento feature grid, FAQ, contact form, and CTA
+- 🌗 **Dark / Light Theme** — Full theme toggle persisted across the app via React Context and CSS custom properties
+- ✨ **Smooth Scroll** — Powered by [Lenis](https://github.com/studio-freight/lenis) for silky-smooth inertia scrolling
+- 🖱️ **Cursor Trail** — Canvas-based electric-blue comet trail that follows the cursor across all pages
+- 🔐 **Auth Pages** — Login, Signup (with password strength meter), and Forgot Password flows; mock OAuth for Google & GitHub
+- 🎞️ **Preloader** — Cinematic "Initializing ML Pipeline" counter shown once per session
+- 🧲 **Magnetic Buttons** — Spring-physics magnetic hover effect on primary CTA buttons
+- 📡 **Animated Background Canvases** — Particle molecule network across auth pages and the landing page
+- 🔔 **Toast Notifications** — Animated slide-up toast system for user feedback
+- 📱 **Fully Responsive** — Mobile-first layouts across all pages
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| **Framework** | React 18 with Vite |
+| **Routing** | React Router v6 |
+| **Animations** | Framer Motion |
+| **Smooth Scroll** | Lenis |
+| **Icons** | Lucide React |
+| **Styling** | Tailwind CSS v4 + CSS Custom Properties |
+| **Fonts** | Syne (display) · DM Sans (body) via Google Fonts |
+| **Canvas FX** | Vanilla Canvas API (particle networks, scroll animations, cursor trail) |
+| **API** | Railway-hosted ML backend (`web-production-6a673.up.railway.app`) |
 
 ---
 
@@ -16,28 +73,20 @@ Nanotoxi is a web application frontend for an AI-driven nanoparticle safety asse
 
 ```
 src/
-├── App.jsx              # Root app, routing, shared contexts & landing page
-├── Benchmarks.jsx       # /benchmarks — NanotoxiBench full page
-├── Login.jsx            # /login — authentication page
-├── Signup.jsx           # /signup — registration page
-├── ForgotPassword.jsx   # /forgot-password — password reset page
-├── useCursorTrail.js    # Canvas-based cursor comet trail utility
-├── index.css            # Global styles, CSS variables, Tailwind config
-├── App.css              # Legacy Vite scaffold styles (mostly unused)
-└── main.jsx             # React entry point
+├── App.jsx                  # Root app — Router, providers, layout, all major sections
+├── Benchmarks.jsx           # NanotoxiBench comparison page
+├── Login.jsx                # Login page with OAuth + email/password
+├── Signup.jsx               # Signup page with password strength indicator
+├── ForgotPassword.jsx       # Forgot password flow with email confirmation state
+├── ScrollAnimations.jsx     # Canvas-based scroll-driven animation components
+├── useCursorTrail.js        # Imperative canvas cursor comet trail initializer
+├── main.jsx                 # React entry point
+├── index.css                # Design tokens, Tailwind config, global styles
+└── App.css                  # Legacy Vite scaffold styles (minimal usage)
+
+public/
+└── nanologo.png             # Brand logo (used across navbar, auth pages, footer)
 ```
-
----
-
-## Routes
-
-| Route | Component | Description |
-|-------|-----------|-------------|
-| `/` | `LandingPage` (inside App.jsx) | Main marketing landing page |
-| `/benchmarks` | `BenchmarksPage` | NanotoxiBench — full ML benchmark results |
-| `/login` | `Login` | Sign-in page |
-| `/signup` | `Signup` | Registration page |
-| `/forgot-password` | `ForgotPassword` | Password reset request |
 
 ---
 
@@ -45,174 +94,247 @@ src/
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js **18+**
 - npm or yarn
 
-### Install & Run
+### Installation
 
 ```bash
-# Install dependencies
+# 1. Clone the repository
+git clone https://github.com/your-org/nanotoxi-ai.git
+cd nanotoxi-ai
+
+# 2. Install dependencies
 npm install
 
-# Start development server
+# 3. Start the development server
 npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
 ```
 
-### Dependencies
+The app will be available at `http://localhost:5173`.
+
+### Build for Production
 
 ```bash
-npm install react-router-dom framer-motion lucide-react
+npm run build
+npm run preview
 ```
 
 ---
 
-## API Integration
+## Pages & Routes
 
-The backend prediction API is hosted at:
+| Route | Component | Description |
+|---|---|---|
+| `/` | `LandingPage` | Full marketing landing page |
+| `/login` | `Login` | Sign-in with email/password or OAuth |
+| `/signup` | `Signup` | Account creation with password strength |
+| `/forgot-password` | `ForgotPassword` | Email reset link flow |
+| `/benchmarks` | `BenchmarksPage` | Model benchmark comparisons |
 
-```
-https://web-production-6a673.up.railway.app
-```
+### Landing Page Sections
 
-**Key endpoints:**
+The landing page (`/`) is composed of the following sections, in order:
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/predict` | POST | Run toxicity prediction |
-| `/contact` | POST | Contact form submission |
-| `/share-dataset` | POST | Dataset sharing |
-
-**Example prediction request:**
-```json
-POST /predict
-{
-  "size": 50,
-  "zeta_potential": -25.4,
-  "surface_area": 120.3,
-  "dosage": 100,
-  "exposure_time": 24,
-  "coating": "PEG"
-}
-```
-
-**External links:**
-- App: `https://app.nanotoxi.com/`
-- Demo booking: `https://calendly.com/nanotoxi/demo`
-- Contact: `contact@nanotoxi.com`
+1. **`Navbar`** — Sticky glassmorphic nav with theme toggle, mobile hamburger menu, and animated link underlines
+2. **`Hero`** — Full-viewport headline with gradient text, animated badge, dual CTA magnetic buttons, and scroll indicator
+3. **`StatsTicker`** — Horizontally scrolling ticker of key platform statistics
+4. **`StepsSection`** — Sticky scroll 3-step workflow (Input → Evaluate → Report) with canvas animations per step
+5. **`EvalStack`** — Bento-style feature grid highlighting the evaluation capabilities
+6. **`WhyAI`** — Second feature bento grid for AI-specific differentiators
+7. **`FAQ`** — Accordion-style frequently asked questions
+8. **`Contact`** — Contact form section
+9. **`DemoWidget`** — Interactive nanoparticle property form with live API prediction results
+10. **`CTASection`** — Full-bleed video background call-to-action
+11. **`Footer`** — Site links, logo, copyright
 
 ---
 
 ## Design System
 
-### CSS Variables (in `index.css`)
+The design system is defined entirely via **CSS custom properties** in `index.css`, enabling instant dark/light mode switching without any JavaScript class toggling beyond applying `.light` to the root element.
 
-| Variable | Dark | Light | Usage |
-|----------|------|-------|-------|
-| `--bg` | `#050505` | `#f2f2ee` | Page background |
-| `--surface` | `#0f0f0f` | `#ffffff` | Cards, panels |
-| `--accent` | `#00ff9d` | `#00b870` | Primary green accent |
-| `--accent-blue` | `#3b82f6` | `#2563eb` | Secondary blue |
-| `--text` | `#ffffff` | `#0a0a0a` | Body text |
-| `--text-muted` | `rgba(255,255,255,0.45)` | `rgba(0,0,0,0.45)` | Secondary text |
-| `--border` | `rgba(255,255,255,0.07)` | `rgba(0,0,0,0.07)` | Borders |
+### Color Tokens
 
-### Fonts
+| Token | Dark Mode | Light Mode |
+|---|---|---|
+| `--bg` | `#040810` (deep navy) | `#f0f4fb` |
+| `--surface` | `#080e1c` | `#ffffff` |
+| `--surface2` | `#0d1526` | `#e8eff9` |
+| `--accent` | `#00c6ff` (electric blue) | `#0080b3` |
+| `--accent-blue` | `#2563eb` | `#1d4ed8` |
+| `--text` | `#e8f0ff` | `#060d1c` |
+| `--text-muted` | `rgba(200,220,255,0.58)` | `rgba(6,13,28,0.60)` |
 
-- **Display:** `Syne` (headings, numbers, logo)
-- **Body:** `DM Sans` (paragraphs, UI text)
+### Typography
 
-Both loaded via Google Fonts in `index.css`.
+- **Display / Headings** — `Syne` (weights 400–800), applied via `--font-display`
+- **Body** — `DM Sans` (weights 300–600), applied via `--font-body`
+- Large headings use `clamp()` for fluid responsive sizing
 
-### Theme Toggling
+### Utility Classes
 
-Theme state is stored in `localStorage` under the key `nanotoxi-theme`. The `ThemeProvider` context (in `App.jsx`) toggles a `.light` class on `<html>` and exposes `useTheme()` hook to all components.
-
----
-
-## Key Features
-
-### Cursor Trail
-`useCursorTrail.js` exports `initCursorTrail()` — a canvas-based comet trail that renders on a fixed full-page canvas above all content. It draws a tapered glowing green stroke following the real cursor without hiding it. Called once in `LandingPage` via the `CursorTrail` component.
-
-### Molecule Canvas
-The animated particle network background (`MoleculeCanvas`) responds to mouse movement — particles repel from the cursor within a 180px radius. Used on the landing page and all auth pages.
-
-### NanotoxiBench (`/benchmarks`)
-Full benchmark results page featuring:
-- 4 collapsible benchmark categories (Toxicity, Aggregation, Cytotoxicity, Risk Factor)
-- Animated bar charts comparing Nanotoxi vs. 5 baselines per task
-- SVG radar chart showing multi-dimensional performance
-- Dataset provenance details sidebar
-- Sticky sidebar with CTAs
+| Class | Purpose |
+|---|---|
+| `.gradient-text` | Accent-to-blue gradient text fill |
+| `.glass-panel` | Glassmorphic card with backdrop blur |
+| `.feature-card` | Cinematic card with deep glow shadow |
+| `.section-eyebrow` | Small all-caps section label |
+| `.heading-display` | Fluid responsive display heading |
+| `.glow-accent` | Electric blue box-shadow glow |
+| `.bench-bar` | Benchmark progress bar track |
+| `.global-noise` | Full-screen film grain overlay (fixed, z-index 9998) |
 
 ---
 
-## Logo
+## UI Components & Animations
 
-The current logo is a text-based wordmark (`Nano` + `toxi` in accent green) combined with a `FlaskConical` icon from Lucide. To replace with an SVG logo file:
+### Preloader (`Preloader`)
 
-1. Place your logo at `public/nanotoxi-logo.svg`
-2. In `App.jsx`, find the `<a href="/" className="flex items-center gap-3 group">` in `Navbar` and replace the icon+wordmark with:
-   ```jsx
-   <img src="/nanotoxi-logo.svg" alt="Nanotoxi" className="h-[22px]" />
-   ```
-3. Repeat for the `Footer` component and auth page logos.
+A full-screen animated counter that runs from 0→100% on first load only. Uses a module-level flag (`globalAppLoaded`) to skip the preloader on subsequent in-session navigation back to `/`.
+
+### Cursor Trail (`useCursorTrail.js`)
+
+An imperative canvas element appended to `document.body` that renders a tapering electric-blue comet trail following the mouse. Initialized once at the Router level and persists across all route changes. Returns a cleanup function to remove the canvas and event listeners.
+
+### Molecule Canvas (on auth pages & landing)
+
+Each auth page and the landing page renders an animated particle network on a `<canvas>` element. Particles drift slowly and connect with faint lines when within proximity. Color adapts to dark/light theme. The canvas is fixed-position, `pointer-events: none`, layered below all content.
+
+### Scroll Animations (`ScrollAnimations.jsx`)
+
+The **StepsSection** uses Framer Motion's `useScroll` + `useTransform` for parallax-style scroll progress, combined with dedicated canvas components (`AnimCanvas`, `AggregationCanvas`, `ToxicityHexCanvas`, `CytotoxicityCanvas`, `RiskRadarCanvas`, `DataHelixCanvas`, `ReportMatrixCanvas`, `ValidationMeshCanvas`, `NanoInputCanvas`, `ExpertValidationCanvas`) that render scientific visualizations for each workflow step.
+
+### Magnetic Buttons (`MagneticButton`)
+
+A Framer Motion `useMotionValue` + `useSpring` implementation that pulls the button and its inner text toward the cursor on hover, creating a satisfying magnetic 3D parallax effect. Supports `href` (external links) and `to` (React Router links).
+
+### Toast Notifications (`ToastProvider`)
+
+A React Context-based toast system. Call `showToast(message, type)` from any child component. Toasts animate in with a slide-up + scale animation and auto-dismiss after ~3 seconds.
+
+### Theme Toggle (`ThemeProvider`)
+
+A React Context exposing `{ theme, toggleTheme }`. The current theme is persisted to `localStorage`. Toggling applies/removes the `.light` class on `document.documentElement`, which cascades all CSS token overrides.
 
 ---
 
-## Deployment
+## Authentication
 
-### Vite Build
+All three auth pages (`Login`, `Signup`, `ForgotPassword`) share these characteristics:
 
-```bash
-npm run build
-# Output: dist/
+- **Animated molecule particle canvas** as background
+- **Glassmorphic card** with backdrop blur
+- **CSS variable-driven** inputs that respect dark/light theme
+- **Toast feedback** for all actions
+- **Mock OAuth** for Google and GitHub (1.5s simulated delay, then navigates to `/`)
+
+### Signup-specific
+
+- **Password strength meter** — evaluates length (≥8), uppercase, numbers, and special characters; renders a 4-segment color-coded bar with labels (Weak / Fair / Good / Strong)
+- **Terms & Conditions checkbox** — custom animated checkbox; form blocks submission if unchecked
+
+### ForgotPassword-specific
+
+- Two-state UI: email form → confirmation screen (animated with `AnimatePresence`)
+- Confirmation screen shows the submitted email address and a button to open Gmail
+
+---
+
+## AI Demo Widget
+
+Located at the bottom of the landing page (`DemoWidget`), this interactive section lets users test the API directly:
+
+**Input fields:**
+- Nanoparticle Size (nm)
+- Surface Charge (mV, zeta potential)
+- Material (Gold, Silver, Iron Oxide, Silica, Carbon Nanotube, TiO₂, ZnO, Quantum Dot)
+- Coating (PEG, Citrate, Amine, CTAB, Bare/None, Dextran, Lipid)
+- Concentration (μg/mL)
+- Exposure Duration (hours)
+
+**Prediction result card shows:**
+- Binary toxicity prediction (Toxic / Non-Toxic) with color coding
+- Confidence percentage
+- Aggregation Risk (HIGH/LOW)
+- Cytotoxicity Score
+- Top risk factors / safety indicators (bulleted list)
+- Offline simulation notice if the backend API is unreachable
+
+**API endpoint:** `POST https://web-production-6a673.up.railway.app/predict`
+
+When the API is offline, the widget falls back to a deterministic heuristic simulation based on the input values (size, charge, material type) to still return a meaningful result.
+
+---
+
+## Benchmarks Page
+
+The `/benchmarks` route (`Benchmarks.jsx`) presents **NanotoxiBench**, a curated benchmark comparison of the NanoToxi model against established baselines.
+
+Features:
+- Animated header with particle canvas background
+- Per-dataset accuracy bar charts with smooth animated fills
+- Model comparison table
+- Metric explanations (Accuracy, F1, AUC-ROC, etc.)
+- Responsive card layout
+
+---
+
+## Environment & API
+
+The ML backend is hosted externally on Railway. No environment variables are required to run the frontend in development — the API URL is hardcoded in `App.jsx`:
+
+```
+https://web-production-6a673.up.railway.app/predict
 ```
 
-### Environment Notes
+If you are self-hosting the backend, update this URL in the `DemoWidget` component inside `App.jsx`.
 
-- The app uses client-side routing (React Router). Your hosting provider must redirect all routes to `index.html`.
-  - **Netlify:** add `public/_redirects` with `/* /index.html 200`
-  - **Vercel:** add `vercel.json` with rewrites
-  - **Nginx:** add `try_files $uri /index.html`
+**Expected request body (POST `/predict`):**
 
-### Vercel (`vercel.json`)
 ```json
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "size": 50,
+  "charge": -20,
+  "material": "Gold",
+  "coating": "PEG",
+  "concentration": 100,
+  "exposure_time": 24
 }
 ```
 
-### Netlify (`public/_redirects`)
+**Expected response:**
+
+```json
+{
+  "prediction": "Non-Toxic",
+  "confidence": 0.94,
+  "aggregation_risk": "LOW",
+  "cytotoxicity_score": 0.12,
+  "top_risk_factors": ["Low surface charge reduces aggregation", "PEG coating improves biocompatibility"]
+}
 ```
-/*  /index.html  200
-```
 
 ---
 
-## Branding Notes
+## Contributing
 
-- **Do not** reference Convexia anywhere — the project has been fully rebranded to Nanotoxi
-- Theme localStorage key: `nanotoxi-theme` (was `cvx-theme`)
-- All external links point to `nanotoxi.com` / `app.nanotoxi.com`
-- Contact email: `contact@nanotoxi.com`
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature-name`
+3. Commit your changes: `git commit -m 'feat: add your feature'`
+4. Push to the branch: `git push origin feature/your-feature-name`
+5. Open a Pull Request
 
----
-
-## Changelog
-
-| Version | Changes |
-|---------|---------|
-| 1.0.0 | Initial Nanotoxi rebrand from Convexia |
-| 1.1.0 | Routing fixes, cursor trail, stats ticker, artistic upgrades |
-| 1.2.0 | Canvas cursor trail (`useCursorTrail.js`), `/benchmarks` page (NanotoxiBench), README |
+Please follow the existing code style — components are co-located in `src/`, CSS tokens are defined in `index.css`, and all theme-sensitive values use CSS custom properties rather than hardcoded colors.
 
 ---
+
+## License
 
 © 2025 Nanotoxi. All rights reserved.
+
+---
+
+<div align="center">
+  <sub>Built with React · Framer Motion · Lenis · Tailwind CSS · Canvas API</sub>
+</div>
