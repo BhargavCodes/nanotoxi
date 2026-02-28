@@ -309,12 +309,6 @@ const STEPS = [
   },
 ];
 
-const EVAL_STACK = [
-  { title:'Aggregation Prediction', desc:'Predicts hydrodynamic behavior and colloidal stability in biological media.', icon: Activity, anim: AggregationCanvas },
-  { title:'Toxicity Classification', desc:'Binary TOXIC/NON-TOXIC classification achieving 95.2% accuracy on held-out test sets.', icon: Shield, anim: ToxicityHexCanvas },
-  { title:'Cytotoxicity Mechanisms', desc:'Identifies ROS generation, apoptosis induction, and membrane disruption pathways.', icon: Microscope, anim: CytotoxicityCanvas },
-  { title:'Risk Factor Analysis', desc:'Determines physicochemical factors driving toxicity risk for targeted mitigation strategies.', icon: BarChart3, anim: RiskRadarCanvas },
-];
 
 const AI_CARDS = [
   { title:'3-Stage ML Pipeline', desc:'Aggregation, toxicity, and cytotoxicity models working in concert for full-spectrum assessment of nanoparticle danger.', icon: Zap, anim: ValidationMeshCanvas },
@@ -415,7 +409,7 @@ const ThemeToggle = () => {
 };
 
 // ─── NAVBAR ───────────────────────────────────────────────────────────────────
-const NAV_LINKS = ['Overview', 'NanotoxiBench', 'Tech Stack', 'FAQ', 'Contact'];
+const NAV_LINKS = ['Home', 'Benchmarks', 'FAQ', 'Contact'];
 
 const Navbar = () => {
   const [open, setOpen]       = useState(false);
@@ -429,17 +423,23 @@ const Navbar = () => {
   }, []);
 
   const href = item => {
-    const map = { 'NanotoxiBench': '/benchmarks', 'Tech Stack': '#techstack' };
+    const map = { 'Benchmarks': '/benchmarks', 'Home': '/' };
     return map[item] || `#${item.toLowerCase().replace(/\s/g, '')}`;
   };
 
   const renderLink = item =>
-    item === 'NanotoxiBench' ? (
+    item === 'Benchmarks' ? (
       <Link key={item} to="/benchmarks" className="relative nav-link group" style={{ color: 'var(--text-muted)' }}>
         {item}
         <span className="absolute -bottom-0.5 left-0 w-0 h-px transition-all duration-300 group-hover:w-full"
           style={{ background: 'var(--accent)' }} />
       </Link>
+    ) : item === 'Home' ? (
+      <a key={item} href="/" className="relative nav-link group" style={{ color: 'var(--text-muted)' }}>
+        {item}
+        <span className="absolute -bottom-0.5 left-0 w-0 h-px transition-all duration-300 group-hover:w-full"
+          style={{ background: 'var(--accent)' }} />
+      </a>
     ) : (
       <a key={item} href={href(item)} className="relative nav-link group" style={{ color: 'var(--text-muted)' }}>
         {item}
@@ -485,9 +485,12 @@ const Navbar = () => {
             style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}>
             <nav className="flex flex-col p-6 gap-4 text-sm">
               {NAV_LINKS.map(item =>
-                item === 'NanotoxiBench' ? (
+                item === 'Benchmarks' ? (
                   <Link key={item} to="/benchmarks" onClick={() => setOpen(false)}
                     className="nav-link py-1" style={{ color: 'var(--text-muted)' }}>{item}</Link>
+                ) : item === 'Home' ? (
+                  <a key={item} href="/" onClick={() => setOpen(false)}
+                    className="nav-link py-1" style={{ color: 'var(--text-muted)' }}>{item}</a>
                 ) : (
                   <a key={item} href={href(item)} onClick={() => setOpen(false)}
                     className="nav-link py-1" style={{ color: 'var(--text-muted)' }}>{item}</a>
@@ -950,83 +953,6 @@ const Benchmarks = () => (
   </section>
 );
 
-// ─── EVAL STACK — Asymmetric staggered grid ────────────────────────────────────
-// Instead of 4 equal bento boxes, the first card spans 7/12 columns and the
-// second spans 5/12, then it flips. Cards stagger vertically to break the
-// rigid horizontal feel. No explicit border prop anywhere.
-const EvalStack = () => {
-  const LAYOUT = [
-    { col: 'md:col-span-7', mt: 0 },
-    { col: 'md:col-span-5', mt: 40 },
-    { col: 'md:col-span-5', mt: -8 },
-    { col: 'md:col-span-7', mt: 0 },
-  ];
-
-  return (
-    <section id="techstack" className="py-32 relative">
-      {/* Divider via glow, not border */}
-      <div className="absolute top-0 left-0 right-0 h-px"
-        style={{ background: 'linear-gradient(90deg, transparent 10%, rgba(0,198,255,0.12) 50%, transparent 90%)' }} />
-
-      <div className="container mx-auto px-6">
-        <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="mb-20">
-          <span className="section-eyebrow block mb-5">Tech Stack</span>
-          <h2 className="heading-display mb-5">Our Toxicity<br />Evaluation Stack</h2>
-          <p className="text-lg max-w-xl" style={{ color: 'var(--text-muted)', lineHeight: 1.7 }}>
-            Specialized models break down environmental and cellular responses at every layer.
-          </p>
-        </motion.div>
-
-        <div className="grid grid-cols-12 gap-5 items-start">
-          {EVAL_STACK.map((card, i) => {
-            const Icon      = card.icon;
-            const AnimComp  = card.anim;
-            const { col, mt } = LAYOUT[i];
-            const minH = i % 2 === 0 ? 280 : 220;
-            return (
-              <motion.div key={i}
-                variants={fadeUp} initial="hidden" whileInView="visible"
-                viewport={{ once: true, margin: '-60px' }}
-                transition={{ delay: i * 0.08, ...SPRING }}
-                style={{ marginTop: mt, minHeight: minH }}
-                className={`col-span-12 ${col} relative overflow-hidden rounded-3xl group cursor-default`}
-                whileHover={{ y: -5, transition: SPRING_FAST }}>
-
-                {/* Glass base — no border */}
-                <div className="absolute inset-0 glass-panel" />
-
-                {/* Canvas background */}
-                {AnimComp && (
-                  <div className="absolute inset-0 opacity-[0.18] group-hover:opacity-[0.32] transition-opacity duration-700 rounded-3xl overflow-hidden">
-                    <AnimComp />
-                  </div>
-                )}
-
-                {/* Gradient overlay for legibility */}
-                <div className="absolute inset-0 rounded-3xl"
-                  style={{ background: 'linear-gradient(to top, rgba(4,8,16,0.82) 0%, transparent 55%)' }} />
-
-                {/* Hover accent line */}
-                <div className="absolute top-0 left-0 right-0 h-px scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left rounded-t-3xl"
-                  style={{ background: 'linear-gradient(90deg, var(--accent), var(--accent-blue), transparent)' }} />
-
-                <div className="relative z-10 p-8 h-full flex flex-col justify-end">
-                  <div className="w-10 h-10 rounded-2xl flex items-center justify-center mb-5"
-                    style={{ background: 'rgba(0,198,255,0.1)', boxShadow: '0 0 0 1px rgba(0,198,255,0.2) inset' }}>
-                    {Icon && <Icon size={18} style={{ color: 'var(--accent)' }} />}
-                  </div>
-                  <h3 className="text-xl font-bold mb-2" style={{ color: 'var(--text)', fontFamily: 'var(--font-display)' }}>{card.title}</h3>
-                  <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>{card.desc}</p>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  );
-};
-
 // ─── WHY AI — One cinematic hero card + two asymmetric cards ─────────────────
 // The grid is deliberately broken: one card spans the entire width at 480px
 // height with a live canvas as its background, then two smaller panels sit
@@ -1289,7 +1215,17 @@ const Contact = () => {
 };
 
 // ─── LIVE DEMO WIDGET ─────────────────────────────────────────────────────────
-const DEMO_DEFAULTS = { size: 50, zetaPotential: -25.4, surfaceArea: 120.3, dosage: 100, exposureTime: 24, coating: 'PEG' };
+const NANOPARTICLES = {
+  "Metal Nanoparticles": ["Gold (Au)", "Silver (Ag)", "Platinum (Pt)", "Palladium (Pd)", "Iridium (Ir)", "Copper (Cu)", "Nickel (Ni)", "Molybdenum (Mo)", "Cadmium (Cd)", "Boron (B)", "Cobalt (Co)", "Zinc (Zn)", "Selenium (Se)", "Lead (Pb)", "Antimony (Sb)", "Gadolinium (Gd)"],
+  "Metal Oxide Nanoparticles": ["Titanium Dioxide (TiO₂)", "Zinc Oxide (ZnO)", "Iron Oxide (Fe₂O₃ / Fe₃O₄)", "Copper Oxide (CuO / Cu₂O)", "Silica (SiO₂)", "Aluminum Oxide (Al₂O₃)", "Cerium Oxide (CeO₂)", "Lanthanum Oxide", "Nickel Oxide (NiO)", "Vanadium Oxide", "Tin Oxide", "Manganese Oxide", "Calcium Oxide", "Magnesium Oxide", "Indium Oxide", "Tungsten Oxide", "Zirconium Oxide", "Lead Oxide", "Antimony Oxide"],
+  "Carbon-Based": ["Carbon Nanotubes (CNT)", "Multi-Walled CNT", "Single-Walled CNT", "Graphene / Graphene Oxide", "Carbon Dots", "Fullerenes (C60)", "Diamond nanoparticles", "Biochar", "Carbon (unspecified)"],
+  "Polymeric / Organic": ["Polymeric nanoparticles (PLGA, PEG, etc.)", "Nanocapsules", "Nanospheres", "Dendrimers", "Hydrogels", "Cellulose nanoparticles", "Chitosan nanoparticles", "Organic nanocarriers"],
+  "Lipid / Biological": ["Liposomes", "Solid Lipid Nanoparticles (SLN)", "Nanostructured Lipid Carriers (NLC)", "Vesicles / Exosomes", "Protein nanoparticles", "Biomolecule-based nanoparticles"],
+  "Ceramic / Mineral": ["Hydroxyapatite", "Silica (SiO₂)", "Clay nanoparticles", "Barium sulfate", "Glass nanoparticles"],
+  "Advanced / Emerging": ["MXenes", "Quantum dots", "Composite nanoparticles", "Core–Shell nanoparticles", "Surface-functionalized nanoparticles"],
+};
+
+const DEMO_DEFAULTS = { nanoparticleType: 'Gold (Au)', size: 50, zetaPotential: -25.4, surfaceArea: 120.3, dosage: 100, exposureTime: 24, coating: 'PEG' };
 const COATINGS      = ['PEG', 'Citrate', 'CTAB', 'PVP', 'Bare', 'Silica', 'Amine', 'Carboxyl'];
 
 const DemoWidget = () => {
@@ -1304,6 +1240,7 @@ const DemoWidget = () => {
       const res = await fetch('https://web-production-6a673.up.railway.app/predict', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          nanoparticle_type: form.nanoparticleType,
           size: Number(form.size), zeta_potential: Number(form.zetaPotential),
           surface_area: Number(form.surfaceArea), dosage: Number(form.dosage),
           exposure_time: Number(form.exposureTime), coating: form.coating,
@@ -1357,6 +1294,45 @@ const DemoWidget = () => {
             style={{ background: 'var(--surface)', boxShadow: '0 0 0 1px rgba(0,198,255,0.07) inset, 0 30px 80px rgba(0,0,0,0.4)' }}>
             <h3 className="text-base font-bold mb-6" style={{ color: 'var(--text)', fontFamily: 'var(--font-display)' }}>Nanoparticle Parameters</h3>
             <div className="space-y-5">
+
+              {/* Nanoparticle Type dropdown */}
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-wider block mb-2" style={{ color: 'var(--text-muted)' }}>
+                  Type of Nanoparticle
+                </label>
+                <div className="relative">
+                  <select
+                    value={form.nanoparticleType}
+                    onChange={e => set('nanoparticleType', e.target.value)}
+                    onFocus={e => e.target.style.borderColor = 'var(--accent)'}
+                    onBlur={e => e.target.style.borderColor = 'var(--border)'}
+                    style={{
+                      ...inputS,
+                      appearance: 'none',
+                      WebkitAppearance: 'none',
+                      MozAppearance: 'none',
+                      paddingRight: 36,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {Object.entries(NANOPARTICLES).map(([group, types]) => (
+                      <optgroup key={group} label={group}>
+                        {types.map(t => (
+                          <option key={t} value={t}>{t}</option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                  {/* Custom chevron icon */}
+                  <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2"
+                    style={{ color: 'var(--text-muted)' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
               {[
                 { k: 'size',         label: 'Size (nm)',             min: 1,   max: 500, unit: 'nm'     },
                 { k: 'zetaPotential',label: 'Zeta Potential (mV)',   min: -80, max: 80,  unit: 'mV'     },
@@ -1569,8 +1545,8 @@ const Footer = () => {
               style={{ mixBlendMode: theme === 'dark' ? 'screen' : 'normal' }} />
           </a>
           <nav className="flex flex-wrap justify-center gap-6 text-sm" style={{ color: 'var(--text-muted)' }}>
-            {[['Overview','#overview'],['NanotoxiBench','/benchmarks'],['Stack','#techstack'],['AI','#ai'],['FAQ','#faq'],['Contact','#contact']].map(([label, to]) =>
-              label === 'NanotoxiBench'
+            {[['Home','/'],['Benchmarks','/benchmarks'],['AI','#ai'],['FAQ','#faq'],['Contact','#contact']].map(([label, to]) =>
+              label === 'Benchmarks'
                 ? <Link key={label} to={to} className="nav-link hover:opacity-80">{label}</Link>
                 : <a key={label} href={to} className="nav-link hover:opacity-80">{label}</a>
             )}
@@ -1591,7 +1567,6 @@ const LandingPage = () => (
     <Hero />
     <StatsTicker />
     <StepsSection />
-    <EvalStack />
     <WhyAI />
     <FAQ />
     <Contact />
